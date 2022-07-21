@@ -6,19 +6,40 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static java.lang.System.exit;
+
 public class Main extends ListenerAdapter {
 
     public static JDA jda;
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) throws LoginException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
 
-        String token = "OTk5NTUzNzA3MDIyNzQ1Njgx.GBLhK6.hIMZr1E6CimWTurldAEX3ifSVWtZ1dWrpVHMR0";
+        Path tokenFile;
+        String token = null;
+
+        //Read in token from a file
+        try{
+            tokenFile = Path.of("token.txt");
+            token = Files.readString(tokenFile);
+            jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES).build().awaitReady();
+        }
+        catch (IOException | IllegalArgumentException e){
+            System.out.println("Cannot open token file! Making a new one. Please configure it");
+
+            PrintWriter writer = new PrintWriter("token.txt", "UTF-8");
+            writer.print("1234567890123456");
+            writer.close();
+            exit(1);
+        }
+
         jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES).build().awaitReady();
         jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
 

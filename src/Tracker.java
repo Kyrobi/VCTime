@@ -5,6 +5,6 @@ public class Tracker extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent e){
-        
+
     }
 }

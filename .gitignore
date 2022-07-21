@@ -1,0 +1,4 @@
+out/
+token.txt
+*.db
+.idea
