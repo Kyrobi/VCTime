@@ -1,3 +1,5 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.File;
 import java.sql.*;
 import java.util.Objects;
@@ -6,16 +8,14 @@ public class Sqlite {
 
     File dbfile = new File("");
     //String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + "/counting.db";
+    //String pathSep = System.getProperty("File.separator");
 
-    String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + "/vcstats.db"; // For linux to work
+    String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + "vcstats.db"; // For linux to work
     //String url = "jdbc:sqlite:/home/kyrobi/Bot/Mio/counting.db";
 
     // This function will create a new database if one doesn't exist
     public void createNewTable(){
-        String sql = "CREATE TABLE IF NOT EXISTS 'stats' ("
-                + " 'userID' integer PRIMARY KEY,"
-                + " 'time' integer NOT NULL DEFAULT 0,"
-                + " 'serverID' integer NOT NULL DEFAULT 0)";
+        String sql = "CREATE TABLE IF NOT EXISTS stats ('userID' integer PRIMARY KEY, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
 
         try{
             Class.forName("org.sqlite.JDBC");
@@ -27,7 +27,7 @@ public class Sqlite {
             System.out.println(error.getMessage());
         }
 
-        System.out.println("Database does not exist. Creating a new one!");
+        System.out.println("Database does not exist. Creating a new one at " + url);
     }
 
     //Insert a new value into the database

@@ -10,7 +10,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,8 +18,9 @@ import static java.lang.System.exit;
 public class Main extends ListenerAdapter {
 
     public static JDA jda;
+    public static String prefix = "$";
 
-    public static void main(String[] args) throws LoginException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
+    public static void main(String[] args) throws LoginException, InterruptedException, IOException {
 
         Path tokenFile;
         String token = null;
@@ -40,7 +40,6 @@ public class Main extends ListenerAdapter {
             exit(1);
         }
 
-        jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES).build().awaitReady();
         jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
 
         //Updates presence with stats about the bot
@@ -73,17 +72,22 @@ public class Main extends ListenerAdapter {
             }
         }, 0, 1000 * SECONDS);
 
-        //Check if a database exists. If not, create a new one
-        Sqlite sqlite = new Sqlite();
 
         // See if a database exists already. If not, create a new one
-        File tempFile = new File("counting.db");
+        File tempFile = new File("vcstats.db");
+        System.out.println("Check file at " + tempFile.getAbsolutePath());
         boolean exists = tempFile.exists();
         if(!exists){
+            //tempFile.createNewFile();
+            System.out.println("Making a new database file");
+            Sqlite sqlite = new Sqlite();
             sqlite.createNewTable();
         }
 
         //Registers the event for command tracking and time tracking
+        jda.addEventListener(new Commands());
         jda.addEventListener(new Tracker());
+
+        Sqlite sqlite = new Sqlite();
     }
 }
