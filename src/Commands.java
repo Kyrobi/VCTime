@@ -14,7 +14,7 @@ public class Commands extends ListenerAdapter {
 
         //Command to see your own stats
         if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("stats"))){
-            System.out.println("Getting stats");
+            //System.out.println("Getting stats");
             Sqlite sqlite = new Sqlite();
             long authorID = Long.parseLong(e.getAuthor().getId());
             long serverID = Long.parseLong(e.getGuild().getId());
@@ -26,7 +26,8 @@ public class Commands extends ListenerAdapter {
 
             File dbfile = new File("");
             String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
-            String selectDescOrder = "SELECT * FROM `stats` ORDER BY `time` DESC LIMIT 25";
+            //String selectDescOrder = "SELECT * FROM `stats` WHERE serverID = ? ORDER BY `time` DESC LIMIT 25";
+
 
             StringBuilder stringBuilder1 = new StringBuilder();
             EmbedBuilder eb = new EmbedBuilder();
@@ -35,8 +36,11 @@ public class Commands extends ListenerAdapter {
             int ranking = 1;
             try{
                 Connection conn = DriverManager.getConnection(url); // Make connection
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(selectDescOrder); // Execute the command
+
+                PreparedStatement selectDescOrder = conn.prepareStatement("SELECT * FROM `stats` WHERE serverID = ? ORDER BY `time` DESC LIMIT 25");
+                selectDescOrder.setLong(1, e.getGuild().getIdLong());
+
+                ResultSet rs = selectDescOrder.executeQuery(); // Execute the command
 
 
                 //We loop through the database. If the userID matches, we break out of the loop
@@ -44,7 +48,7 @@ public class Commands extends ListenerAdapter {
                     long userId = rs.getLong("userID");
 
                     //stringBuilder1.append("\n`#" + ranking++ + "` **" + rs.getInt("amount") + "** - " + (toUser(userId)).getAsMention());
-                    stringBuilder1.append("\n`#" + ranking++ + "` **" + "** - " + "<@" + userId + "> " + millisecondsToTimeStamp(rs.getLong("time")));
+                    stringBuilder1.append("\n**#" + ranking++ + "** " + "<@" + userId + "> " + millisecondsToTimeStamp(rs.getLong("time")));
                 }
                 rs.close();
                 conn.close();

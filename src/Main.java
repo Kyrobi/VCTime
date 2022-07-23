@@ -63,7 +63,7 @@ public class Main extends ListenerAdapter {
                     for(Guild a: jda.getGuilds()){
                         memberCount[0] += a.getMemberCount();
                     }
-                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " servers!"));
+                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
                     presenseSwitch[0] = 1;
                     memberCount[0] = 0; //Resets to 0 or else it will keep stacking
                 }

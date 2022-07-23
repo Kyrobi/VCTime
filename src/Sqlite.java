@@ -15,7 +15,7 @@ public class Sqlite {
 
     // This function will create a new database if one doesn't exist
     public void createNewTable(){
-        String sql = "CREATE TABLE IF NOT EXISTS stats ('userID' integer PRIMARY KEY, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
+        String sql = "CREATE TABLE IF NOT EXISTS stats ('userID' integer NOT NULL DEFAULT 0, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
 
         try{
             Class.forName("org.sqlite.JDBC");
@@ -31,7 +31,7 @@ public class Sqlite {
     }
 
     //Insert a new value into the database
-    public void insert(long userID, int amount, long serverID){
+    public void insert(long userID, long time, long serverID){
 
         String sqlcommand = "INSERT INTO stats(userID, time, serverID) VALUES(?,?,?)";
 
@@ -40,7 +40,7 @@ public class Sqlite {
             Connection conn = DriverManager.getConnection(url);
             PreparedStatement stmt = conn.prepareStatement(sqlcommand);
             stmt.setLong(1, userID); // The first column will contain the ID
-            stmt.setInt(2, amount); // The second column will contain the amount
+            stmt.setLong(2, time); // The second column will contain the amount
             stmt.setLong(3, serverID);
             stmt.executeUpdate();
             conn.close();
@@ -51,7 +51,7 @@ public class Sqlite {
     }
 
     //Updates an existing value in the database
-    public void update(long userID, int amount, long serverID){
+    public void update(long userID, long time, long serverID){
 
         try{
             Class.forName("org.sqlite.JDBC");
@@ -59,7 +59,7 @@ public class Sqlite {
             //PreparedStatement stmt = conn.prepareStatement(updateCommand);
             PreparedStatement update = conn.prepareStatement("UPDATE stats SET time = ? WHERE userID = ? AND serverID = ?");
 
-            update.setInt(1, amount);
+            update.setLong(1, time);
             update.setLong(2, userID);
             update.setLong(3, serverID);
 
@@ -115,8 +115,8 @@ public class Sqlite {
     }
 
 
-    public int getTime(long userId, long serverID){
-        int amount = 0;
+    public long getTime(long userId, long serverID){
+        long amount = 0;
 
         try {
             //System.out.println("Connecting...");
