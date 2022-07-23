@@ -19,6 +19,7 @@ public class Main extends ListenerAdapter {
 
     public static JDA jda;
     public static String prefix = "$";
+    public static final String databaseFileName = "vcstats.db";
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException {
 
@@ -74,7 +75,7 @@ public class Main extends ListenerAdapter {
 
 
         // See if a database exists already. If not, create a new one
-        File tempFile = new File("vcstats.db");
+        File tempFile = new File(databaseFileName);
         System.out.println("Check file at " + tempFile.getAbsolutePath());
         boolean exists = tempFile.exists();
         if(!exists){
@@ -88,6 +89,7 @@ public class Main extends ListenerAdapter {
         jda.addEventListener(new Commands());
         jda.addEventListener(new Tracker());
 
-        Sqlite sqlite = new Sqlite();
+//        Sqlite sqlite = new Sqlite();
+//        sqlite.insert(559428414709301279L, 99999999, 793748152355389481L);
     }
 }

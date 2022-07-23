@@ -1,9 +1,9 @@
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.util.Calendar;
+import java.io.File;
+import java.sql.*;
 import java.util.concurrent.TimeUnit;
 
 public class Commands extends ListenerAdapter {
@@ -13,18 +13,57 @@ public class Commands extends ListenerAdapter {
         String[] args = e.getMessage().getContentRaw().split(" ");
 
         //Command to see your own stats
-        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase(Main.prefix + "stats"))){
+        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("stats"))){
+            System.out.println("Getting stats");
             Sqlite sqlite = new Sqlite();
             long authorID = Long.parseLong(e.getAuthor().getId());
             long serverID = Long.parseLong(e.getGuild().getId());
-            e.getChannel().sendMessage(e.getMessage().getAuthor().getAsMention() + "'s vc time: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
+            e.getChannel().sendMessage(e.getMessage().getAuthor().getAsMention() + "'s total time spent in vc: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
         }
 
         //Leaderboard command
-        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase(Main.prefix + "leaderboard"))){
+        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("leaderboard"))){
+
+            File dbfile = new File("");
+            String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+            String selectDescOrder = "SELECT * FROM `stats` ORDER BY `time` DESC LIMIT 25";
+
+            StringBuilder stringBuilder1 = new StringBuilder();
+            EmbedBuilder eb = new EmbedBuilder();
+
+            //int maxAmount = 20;
+            int ranking = 1;
+            try{
+                Connection conn = DriverManager.getConnection(url); // Make connection
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(selectDescOrder); // Execute the command
+
+
+                //We loop through the database. If the userID matches, we break out of the loop
+                while(rs.next()){
+                    long userId = rs.getLong("userID");
+
+                    //stringBuilder1.append("\n`#" + ranking++ + "` **" + rs.getInt("amount") + "** - " + (toUser(userId)).getAsMention());
+                    stringBuilder1.append("\n`#" + ranking++ + "` **" + "** - " + "<@" + userId + "> " + millisecondsToTimeStamp(rs.getLong("time")));
+                }
+                rs.close();
+                conn.close();
+
+            }
+            catch(SQLException ev){
+                ev.printStackTrace();
+                System.out.println("Error code: " + ev.getMessage());
+            }
+
+            //We take the final string and post it into the field
+            eb.addField("Voice call leaderboard [Top 25]", stringBuilder1.toString(), true);
+
+            e.getChannel().sendMessageEmbeds(eb.build()).queue();
 
         }
     }
+
+
 
     public String millisecondsToTimeStamp(long durationInMillis) {
 

@@ -10,7 +10,7 @@ public class Sqlite {
     //String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + "/counting.db";
     //String pathSep = System.getProperty("File.separator");
 
-    String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + "vcstats.db"; // For linux to work
+    String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName; // For linux to work
     //String url = "jdbc:sqlite:/home/kyrobi/Bot/Mio/counting.db";
 
     // This function will create a new database if one doesn't exist
