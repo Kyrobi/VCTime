@@ -46,7 +46,7 @@ public class Main extends ListenerAdapter {
         //Updates presence with stats about the bot
 
         //Reference: https://stackoverflow.com/questions/1220975/calling-a-function-every-10-minutes
-        int SECONDS = 5; // The delay in minutes
+        int SECONDS = 10; // The delay in minutes
         final int[] presenseSwitch = {1}; // Controls which stats so show in presence
         final int[] memberCount = {0};
         Timer timer = new Timer();

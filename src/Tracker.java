@@ -15,7 +15,8 @@ public class Tracker extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e){
-        System.out.println("User has joined the vc");
+        String username = e.getMember().getEffectiveName();
+        System.out.println(username + " has joined the vc");
 
         long userID = Long.parseLong(e.getMember().getId());
         long currentTime = System.currentTimeMillis();

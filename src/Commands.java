@@ -10,6 +10,12 @@ public class Commands extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent e){
+
+        //If bot tries to run commands, nothing will happen 
+        if(e.getAuthor().isBot()){
+            return;
+        }
+
         String[] args = e.getMessage().getContentRaw().split(" ");
 
         //Command to see your own stats
@@ -64,6 +70,13 @@ public class Commands extends ListenerAdapter {
 
             e.getChannel().sendMessageEmbeds(eb.build()).queue();
 
+        }
+
+        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("help"))){
+            e.getChannel().sendMessage("" +
+                    "$vc stats - View your call time\n" +
+                    "$vc leaderboard - View the vc leaderboard for your server"
+            ).queue();
         }
     }
 
