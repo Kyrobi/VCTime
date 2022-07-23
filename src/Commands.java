@@ -11,7 +11,7 @@ public class Commands extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent e){
 
-        //If bot tries to run commands, nothing will happen 
+        //If bot tries to run commands, nothing will happen
         if(e.getAuthor().isBot()){
             return;
         }
@@ -75,10 +75,12 @@ public class Commands extends ListenerAdapter {
         if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("help"))){
             e.getChannel().sendMessage("" +
                     "$vc stats - View your call time\n" +
-                    "$vc leaderboard - View the vc leaderboard for your server"
+                    "$vc leaderboard - View the vc leaderboard for your server\n" +
+                    "\nUsers in a voice channel called AFK won't have their time counted."
             ).queue();
         }
     }
+
 
 
 
