@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,14 @@ public class Tracker extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e){
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has joined the VC");
+
+        botUtils fileWrite = new botUtils();
+        try {
+            fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has joined the VC");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             return;
         }
@@ -26,6 +35,14 @@ public class Tracker extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent e){
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
+
+        botUtils fileWrite = new botUtils();
+        try {
+            fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         if(e.getChannelLeft().getName().equalsIgnoreCase("AFK")){
             return;
         }
@@ -35,12 +52,26 @@ public class Tracker extends ListenerAdapter {
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent e){
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has changed from channel " + e.getChannelLeft().getName() + " to " + e.getChannelJoined().getName());
+
+        botUtils fileWrite = new botUtils();
+        try {
+            fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has changed from channel " + e.getChannelLeft().getName() + " to " + e.getChannelJoined().getName());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         String username = e.getMember().getEffectiveName();
 
         //If moved into an AFK channel
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             System.out.println(username +  " got moved into an AFK channel. Saving stats    ");
             saveStats(e.getMember());
+
+            try {
+                fileWrite.writeToFile(username +  " got moved into an AFK channel. Saving stats    ");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
 
         if(!e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
@@ -50,13 +81,13 @@ public class Tracker extends ListenerAdapter {
 
     public void startStats(Member e){
         String username = e.getEffectiveName();
-        System.out.println(username + " has joined the vc");
 
         long userID = Long.parseLong(e.getId());
         long currentTime = System.currentTimeMillis();
 
         //Saves the time for when the user first joins the VC
         joinTracker.put(userID, currentTime);
+
     }
 
     public void saveStats(Member e){
@@ -96,5 +127,12 @@ public class Tracker extends ListenerAdapter {
         joinTracker.remove(userID);
 
         System.out.println(username + " has left the vc. In vc for " + timeDifference + "ms");
+
+        botUtils fileWrite = new botUtils();
+        try {
+            fileWrite.writeToFile(username + " has left the vc. In vc for " + timeDifference + "ms");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

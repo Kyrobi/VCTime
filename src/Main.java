@@ -89,6 +89,7 @@ public class Main extends ListenerAdapter {
         jda.addEventListener(new Commands());
         jda.addEventListener(new Tracker());
 
+
 //        Sqlite sqlite = new Sqlite();
 //        sqlite.insert(559428414709301279L, 99999999, 793748152355389481L);
     }
