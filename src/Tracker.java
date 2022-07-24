@@ -26,6 +26,11 @@ public class Tracker extends ListenerAdapter {
             ex.printStackTrace();
         }
 
+        //Don't do anything if bot joins
+        if(e.getJDA().getSelfUser().isBot()){
+            return;
+        }
+
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             return;
         }
@@ -41,6 +46,11 @@ public class Tracker extends ListenerAdapter {
             fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
         } catch (IOException ex) {
             ex.printStackTrace();
+        }
+
+        //Don't do anything if bot joins
+        if(e.getJDA().getSelfUser().isBot()){
+            return;
         }
 
         if(e.getChannelLeft().getName().equalsIgnoreCase("AFK")){
@@ -62,6 +72,10 @@ public class Tracker extends ListenerAdapter {
 
         String username = e.getMember().getEffectiveName();
 
+        //Don't do anything if bot joins
+        if(e.getJDA().getSelfUser().isBot()){
+            return;
+        }
         //If moved into an AFK channel
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             System.out.println(username +  " got moved into an AFK channel. Saving stats    ");

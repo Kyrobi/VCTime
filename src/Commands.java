@@ -32,7 +32,6 @@ public class Commands extends ListenerAdapter {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            System.out.println(e.getAuthor().getName() + " issued command: stats");
 
             e.getChannel().sendMessage(e.getMessage().getAuthor().getAsMention() + "'s total time spent in vc: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
         }
@@ -46,7 +45,6 @@ public class Commands extends ListenerAdapter {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            System.out.println(e.getAuthor().getName() + " issued command: leaderboard");
 
             File dbfile = new File("");
             String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
@@ -103,7 +101,6 @@ public class Commands extends ListenerAdapter {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            System.out.println(e.getAuthor().getName() + " issued command: help");
         }
 
         if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("listservers"))){

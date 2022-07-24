@@ -4,6 +4,7 @@ public class botUtils {
     public void writeToFile(String string) throws IOException {
 
 
+        System.out.println(string);
         File file = new File("out.txt");
 
         /* This logic is to create the file if the
@@ -24,4 +25,6 @@ public class botUtils {
         bw.close();
 
     }
+
+    
 }
