@@ -17,11 +17,12 @@ public class Tracker extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e){
+        String guildName = e.getGuild().getName();
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has joined the VC");
 
         botUtils fileWrite = new botUtils();
         try {
-            fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has joined the VC");
+            fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getMember().getEffectiveName() + "** | has joined the VC");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -39,11 +40,12 @@ public class Tracker extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent e){
+        String guildName = e.getGuild().getName();
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
 
         botUtils fileWrite = new botUtils();
         try {
-            fileWrite.writeToFile(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
+            fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getMember().getEffectiveName() + "** | has left the VC");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -94,7 +96,6 @@ public class Tracker extends ListenerAdapter {
     }
 
     public void startStats(Member e){
-        String username = e.getEffectiveName();
 
         long userID = Long.parseLong(e.getId());
         long currentTime = System.currentTimeMillis();
@@ -144,7 +145,7 @@ public class Tracker extends ListenerAdapter {
 
         botUtils fileWrite = new botUtils();
         try {
-            fileWrite.writeToFile(username + " has left the vc. In vc for " + timeDifference + "ms");
+            fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + username + "** | has left the vc. In vc for " + timeDifference + "ms -> " + timeDifference/1000 + " seconds");
         } catch (IOException ex) {
             ex.printStackTrace();
         }

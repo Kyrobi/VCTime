@@ -28,7 +28,7 @@ public class Commands extends ListenerAdapter {
 
             botUtils fileWrite = new botUtils();
             try {
-                fileWrite.writeToFile(e.getAuthor().getName() + " issued command: stats");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: stats`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -41,7 +41,7 @@ public class Commands extends ListenerAdapter {
 
             botUtils fileWrite = new botUtils();
             try {
-                fileWrite.writeToFile(e.getAuthor().getName() + " issued command: leaderboard");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: leaderboard`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -97,7 +97,7 @@ public class Commands extends ListenerAdapter {
 
             botUtils fileWrite = new botUtils();
             try {
-                fileWrite.writeToFile(e.getAuthor().getName() + " issued command: help");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: help`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -111,16 +111,11 @@ public class Commands extends ListenerAdapter {
                 System.out.println("Ordering server list");
                 StringBuilder str = new StringBuilder();
                 for(Guild a: Main.jda.getGuilds()){
-                    str.append(a.getName() + "\n");
-                    System.out.println("- " + a.getName() + ": " + a.getMemberCount() + " members");
+                    str.append("`" + a.getName() + " " + a.getMemberCount() + "`" + "\n");
+                    //System.out.println("- " + a.getName() + ": " + a.getMemberCount() + " members");
                 }
 
-                try {
-                    botUtils fileWrite = new botUtils();
-                    fileWrite.writeToFile(String.valueOf(str));
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                e.getChannel().sendMessage(String.valueOf(str)).queue();
             }
         }
     }

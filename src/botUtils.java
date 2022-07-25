@@ -1,3 +1,5 @@
+import net.dv8tion.jda.api.entities.TextChannel;
+
 import java.io.*;
 
 public class botUtils {
@@ -24,7 +26,8 @@ public class botUtils {
         bw.newLine();
         bw.close();
 
+        Main.sendToDiscord(string);
+
     }
 
-    
 }
