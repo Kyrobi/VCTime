@@ -1,6 +1,6 @@
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.*;
@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 public class Commands extends ListenerAdapter {
 
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent e){
+    public void onMessageReceived(MessageReceivedEvent e){
+
 
         //If bot tries to run commands, nothing will happen
         if(e.getAuthor().isBot()){
@@ -19,9 +20,15 @@ public class Commands extends ListenerAdapter {
 
         String[] args = e.getMessage().getContentRaw().split(" ");
 
+
+        //System.out.println("Arg[0] " + args[0]);
+        //System.out.println("Arg[1] " + args[1]);
+
         //Command to see your own stats
         if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("stats"))){
             //System.out.println("Getting stats");
+
+            System.out.println("Getting status");
             Sqlite sqlite = new Sqlite();
             long authorID = Long.parseLong(e.getAuthor().getId());
             long serverID = Long.parseLong(e.getGuild().getId());
@@ -92,7 +99,8 @@ public class Commands extends ListenerAdapter {
             e.getChannel().sendMessage("" +
                     "$vc stats - View your call time\n" +
                     "$vc leaderboard - View the vc leaderboard for your server\n" +
-                    "\nUsers in a voice channel called AFK won't have their time counted."
+                    "\nUsers in a voice channel called AFK won't have their time counted." +
+                    "\nYour stats will update when you leave the voice call."
             ).queue();
 
             botUtils fileWrite = new botUtils();
@@ -110,6 +118,8 @@ public class Commands extends ListenerAdapter {
 
                 System.out.println("Ordering server list");
                 StringBuilder str = new StringBuilder();
+
+                str.append("In ").append(Main.jda.getGuilds().size()).append(" servers!\n");
                 for(Guild a: Main.jda.getGuilds()){
                     str.append("`" + a.getName() + " " + a.getMemberCount() + "`" + "\n");
                     //System.out.println("- " + a.getName() + ": " + a.getMemberCount() + " members");
@@ -118,6 +128,7 @@ public class Commands extends ListenerAdapter {
                 e.getChannel().sendMessage(String.valueOf(str)).queue();
             }
         }
+
     }
 
 

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="JDA-4.4.0_350-withDependencies-min">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../API/JDA/JDA-4.4.0_350-withDependencies-min.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

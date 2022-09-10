@@ -31,7 +31,7 @@ public class Main extends ListenerAdapter {
         try{
             tokenFile = Path.of("token.txt");
             token = Files.readString(tokenFile);
-            jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES).build().awaitReady();
+            jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES, GatewayIntent.MESSAGE_CONTENT).build().awaitReady();
         }
         catch (IOException | IllegalArgumentException e){
             System.out.println("Cannot open token file! Making a new one. Please configure it");
@@ -47,30 +47,18 @@ public class Main extends ListenerAdapter {
         //Updates presence with stats about the bot
 
         //Reference: https://stackoverflow.com/questions/1220975/calling-a-function-every-10-minutes
-        int SECONDS = 10; // The delay in minutes
-        final int[] presenseSwitch = {1}; // Controls which stats so show in presence
+        int SECONDS = 30; // The delay in minutes
         final int[] memberCount = {0};
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() { // Function runs every MINUTES minutes.
 
-                if(presenseSwitch[0] == 1){
-                    jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
-                    presenseSwitch[0] = 0;
+                for(Guild a: jda.getGuilds()){
+                    memberCount[0] += a.getMemberCount();
                 }
-                else if(presenseSwitch[0] == 0){
-
-                    for(Guild a: jda.getGuilds()){
-                        memberCount[0] += a.getMemberCount();
-                    }
-                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
-                    presenseSwitch[0] = 1;
-                    memberCount[0] = 0; //Resets to 0 or else it will keep stacking
-                }
-                else{
-                    System.out.println("Error in deciding which presence to display");
-                }
+                jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
+                memberCount[0] = 0; //Resets to 0 or else it will keep stacking
             }
         }, 0, 1000 * SECONDS);
 
