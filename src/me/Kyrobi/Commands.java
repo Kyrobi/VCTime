@@ -1,5 +1,9 @@
+package me.Kyrobi;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -7,48 +11,51 @@ import java.io.*;
 import java.sql.*;
 import java.util.concurrent.TimeUnit;
 
+
 public class Commands extends ListenerAdapter {
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent e){
+    public void onSlashCommand(SlashCommandEvent e){
 
+        System.out.println("Slash command");
+
+        Member author = e.getMember();
+        String authorName = e.getName();
 
         //If bot tries to run commands, nothing will happen
-        if(e.getAuthor().isBot()){
+        if(author.getUser().isBot()){
             return;
         }
 
-        String[] args = e.getMessage().getContentRaw().split(" ");
-
-
-        //System.out.println("Arg[0] " + args[0]);
-        //System.out.println("Arg[1] " + args[1]);
 
         //Command to see your own stats
-        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("stats"))){
+        if(e.getName().equalsIgnoreCase("stats")){
             //System.out.println("Getting stats");
 
             System.out.println("Getting status");
             Sqlite sqlite = new Sqlite();
-            long authorID = Long.parseLong(e.getAuthor().getId());
+            long authorID = Long.parseLong(author.getId());
             long serverID = Long.parseLong(e.getGuild().getId());
 
             botUtils fileWrite = new botUtils();
+
             try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: stats`");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: stats`");
+                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: stats`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            e.getChannel().sendMessage(e.getMessage().getAuthor().getAsMention() + "'s total time spent in vc: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
+            e.reply(author.getAsMention() + "'s total time spent in vc: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
         }
 
         //Leaderboard command
-        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("leaderboard"))){
+        if(e.getName().equalsIgnoreCase("leaderboard")){
 
             botUtils fileWrite = new botUtils();
             try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: leaderboard`");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard`");
+                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -91,25 +98,40 @@ public class Commands extends ListenerAdapter {
             //We take the final string and post it into the field
             eb.addField("Voice call leaderboard [Top 25]", stringBuilder1.toString(), true);
 
-            e.getChannel().sendMessageEmbeds(eb.build()).queue();
+            //e.getChannel().sendMessageEmbeds(eb.build()).queue();
+            e.replyEmbeds(eb.build()).queue();
 
         }
 
-        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("help"))){
-            e.getChannel().sendMessage("" +
-                    "$vc stats - View your call time\n" +
-                    "$vc leaderboard - View the vc leaderboard for your server\n" +
+        if(e.getName().equalsIgnoreCase("help")){
+            e.reply("" +
+                    "/stats - View your call time\n" +
+                    "/leaderboard - View the vc leaderboard for your server\n" +
                     "\nUsers in a voice channel called AFK won't have their time counted." +
                     "\nYour stats will update when you leave the voice call."
             ).queue();
 
             botUtils fileWrite = new botUtils();
             try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + e.getAuthor().getName() + "** | `issued command: help`");
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: help`");
+                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: help`");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+
+    }
+
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent e){
+
+        //If bot tries to run commands, nothing will happen
+        if(e.getAuthor().isBot()){
+            return;
+        }
+
+        String[] args = e.getMessage().getContentRaw().split(" ");
 
         if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("listservers"))){
 
@@ -128,7 +150,6 @@ public class Commands extends ListenerAdapter {
                 e.getChannel().sendMessage(String.valueOf(str)).queue();
             }
         }
-
     }
 
 

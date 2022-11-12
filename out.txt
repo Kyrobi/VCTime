@@ -1,1 +1,5 @@
 `VCStats` | **Kyrobi** | `issued command: stats`
+`Ky's Nuclear Playground` | **Kyrobi** | `issued command: stats`
+`Ky's Nuclear Playground` | **help** | `issued command: help`
+`Ky's Nuclear Playground` | **stats** | `issued command: stats`
+`Ky's Nuclear Playground` | **help** | `issued command: help`
