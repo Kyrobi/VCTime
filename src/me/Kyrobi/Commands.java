@@ -150,6 +150,18 @@ public class Commands extends ListenerAdapter {
                 e.getChannel().sendMessage(String.valueOf(str)).queue();
             }
         }
+
+        if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("help"))){
+            e.getChannel().sendMessage("Please use the command /help instead").queue();
+        }
+
+        else if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("stats"))){
+            e.getChannel().sendMessage("Please use the command /stats instead").queue();
+        }
+
+        else if((args[0].equalsIgnoreCase(Main.prefix + "vc")) && (args[1].equalsIgnoreCase("leaderboard"))){
+            e.getChannel().sendMessage("Please use the command /leaderboard instead").queue();
+        }
     }
 
 
