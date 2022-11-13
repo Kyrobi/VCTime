@@ -20,7 +20,7 @@ public class Commands extends ListenerAdapter {
         System.out.println("Slash command");
 
         Member author = e.getMember();
-        String authorName = e.getName();
+        String authorName = e.getMember().getUser().getName();
 
         //If bot tries to run commands, nothing will happen
         if(author.getUser().isBot()){
