@@ -132,7 +132,7 @@ public class Sqlite {
             //Statement stmt = conn.createStatement();
             //ResultSet rs = getAmount.executeQuery(selectfrom); // Execute the command
             ResultSet rs = getAmount.executeQuery(); // Used with prepared statement
-            amount = rs.getInt("time");
+            amount = rs.getLong("time");
             rs.close();
             conn.close();
         }
