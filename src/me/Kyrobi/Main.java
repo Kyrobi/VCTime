@@ -34,7 +34,8 @@ public class Main extends ListenerAdapter {
         try{
             tokenFile = Path.of("token.txt");
             token = Files.readString(tokenFile);
-            jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES).build().awaitReady();
+            //jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES).build().awaitReady();
+            jda = JDABuilder.createDefault(token).build().awaitReady();
         }
         catch (IOException | IllegalArgumentException e){
             System.out.println("Cannot open token file! Making a new one. Please configure it");
