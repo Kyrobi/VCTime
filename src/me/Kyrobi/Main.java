@@ -51,18 +51,31 @@ public class Main extends ListenerAdapter {
         //Updates presence with stats about the bot
 
         //Reference: https://stackoverflow.com/questions/1220975/calling-a-function-every-10-minutes
-        int SECONDS = 30; // The delay in minutes
+        int SECONDS = 20; // The delay in seconds
+
         final int[] memberCount = {0};
+        final int[] presenseSwitch = {1}; // Controls which stats so show in presence
+
+
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() { // Function runs every MINUTES minutes.
 
-                for(Guild a: jda.getGuilds()){
-                    memberCount[0] += a.getMemberCount();
+                if(presenseSwitch[0] == 1){
+                    jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
+                    presenseSwitch[0] = 0;
                 }
-                jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
-                memberCount[0] = 0; //Resets to 0 or else it will keep stacking
+
+                else if(presenseSwitch[0] == 0){
+                    for(Guild a: jda.getGuilds()){
+                        memberCount[0] += a.getMemberCount();
+                    }
+                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
+                    presenseSwitch[0] = 1;
+                    memberCount[0] = 0; //Resets to 0 or else it will keep stacking
+                }
+
             }
         }, 0, 1000 * SECONDS);
 
