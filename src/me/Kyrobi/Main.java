@@ -46,35 +46,60 @@ public class Main extends ListenerAdapter {
             exit(1);
         }
 
-        jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
+        // jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
 
         //Updates presence with stats about the bot
 
         //Reference: https://stackoverflow.com/questions/1220975/calling-a-function-every-10-minutes
-        int SECONDS = 20; // The delay in seconds
+//        int SECONDS = 20; // The delay in seconds
+//
+//        final int[] memberCount = {0};
+//        final int[] presenseSwitch = {1}; // Controls which stats so show in presence
+//
+//
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() { // Function runs every MINUTES minutes.
+//
+//                if(presenseSwitch[0] == 1){
+//                    jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
+//                    presenseSwitch[0] = 0;
+//                }
+//
+//                else if(presenseSwitch[0] == 0){
+//                    for(Guild a: jda.getGuilds()){
+//                        memberCount[0] += a.getMemberCount();
+//                    }
+//                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
+//                    presenseSwitch[0] = 1;
+//                    memberCount[0] = 0; //Resets to 0 or else it will keep stacking
+//                }
+//
+//            }
+//        }, 0, 1000 * SECONDS);
+
 
         final int[] memberCount = {0};
-        final int[] presenseSwitch = {1}; // Controls which stats so show in presence
+        Guild myGuild = jda.getGuildById(1000784443797164136L);
+        TextChannel channel = myGuild.getTextChannelById(1041145268873216101L);
 
-
+        // Auto send user count and server count to channel every 12 hours
+        int SECONDS = 43200; // The delay in seconds. This is 12 hours
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
-            public void run() { // Function runs every MINUTES minutes.
+            public void run() {
 
-                if(presenseSwitch[0] == 1){
-                    jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
-                    presenseSwitch[0] = 0;
+                for (Guild a: jda.getGuilds()){
+                    memberCount[0] += a.getMemberCount();
                 }
 
-                else if(presenseSwitch[0] == 0){
-                    for(Guild a: jda.getGuilds()){
-                        memberCount[0] += a.getMemberCount();
-                    }
-                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
-                    presenseSwitch[0] = 1;
-                    memberCount[0] = 0; //Resets to 0 or else it will keep stacking
-                }
+                int serverCount = jda.getGuilds().size();
+
+                channel.sendMessage(serverCount + " - " + memberCount[0]).queue();
+                jda.getPresence().setActivity(Activity.playing("Spectating " + memberCount[0] + " members!"));
+                memberCount[0] = 0; //Resets to 0 or else it will keep stacking
 
             }
         }, 0, 1000 * SECONDS);
