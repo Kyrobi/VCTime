@@ -2,6 +2,7 @@ package me.Kyrobi;
 
 import me.Kyrobi.botUtils;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -69,6 +70,7 @@ public class Tracker extends ListenerAdapter {
         String username = e.getMember().getEffectiveName();
 
         //If moved into an AFK channel
+
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             System.out.println(username +  " got moved into an AFK channel. Saving stats ");
             saveStats(e.getMember());
@@ -85,7 +87,7 @@ public class Tracker extends ListenerAdapter {
         }
     }
 
-    public void startStats(Member e){
+    public static void startStats(Member e){
 
         long userID = Long.parseLong(e.getId());
         long currentTime = System.currentTimeMillis();
@@ -95,7 +97,7 @@ public class Tracker extends ListenerAdapter {
 
     }
 
-    public void saveStats(Member e){
+    public static void saveStats(Member e){
         String username = e.getEffectiveName();
         long userID = Long.parseLong(e.getId());
         long serverID = Long.parseLong(e.getGuild().getId());
@@ -131,13 +133,5 @@ public class Tracker extends ListenerAdapter {
         //Remove the user from the cache
         joinTracker.remove(userID);
 
-        System.out.println(username + " has left the vc. In vc for " + timeDifference + "ms");
-
-        botUtils fileWrite = new botUtils();
-        try {
-            fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + username + "** | has left the vc. In vc for " + timeDifference + "ms -> " + timeDifference/1000 + " seconds");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
 }
