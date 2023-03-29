@@ -37,12 +37,6 @@ public class leaderboardCommand extends ListenerAdapter{
             OptionMapping leaderboardOption = e.getOption("page");
 
             botUtils fileWrite = new botUtils();
-            try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard`");
-                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard`");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
 
 
             int nameInterval = 20; // Shows 25 names per page
@@ -50,6 +44,13 @@ public class leaderboardCommand extends ListenerAdapter{
             int pagesPossible; // How many pages are possible given the amount of users returned
             if(leaderboardOption != null){
                 requestedPages = leaderboardOption.getAsLong();
+            }
+
+            try {
+                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard " + requestedPages +"`");
+                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard " + requestedPages +"`");
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
 
             // Get all the members from this guild
