@@ -1,5 +1,6 @@
 package me.Kyrobi.Commands;
 
+import me.Kyrobi.Main;
 import me.Kyrobi.Sqlite;
 import me.Kyrobi.Tracker;
 import me.Kyrobi.botUtils;
@@ -7,7 +8,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.*;
 import java.util.EventListener;
 
 import static me.Kyrobi.Main.millisecondsToTimeStamp;
@@ -53,8 +56,36 @@ public class statsCommand extends ListenerAdapter {
                 ex.printStackTrace();
             }
 
-            e.reply(author.getAsMention() + "'s total time spent in vc: " + millisecondsToTimeStamp(sqlite.getTime(authorID, serverID))).queue();
+            e.reply(author.getAsMention() + "\nLeaderboard Ranking: **#" + getPlayerLeaderboardPosition(e.getGuild().getIdLong(), e.getMember().getIdLong()) + "**\nTotal Time Spent: **" +  millisecondsToTimeStamp(sqlite.getTime(authorID, serverID)) + "**").queue();
         }
 
+    }
+
+    private long getPlayerLeaderboardPosition(long guildID, long userID){
+        File dbfile = new File("");
+        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+
+        int rankingCounter = 1;
+        try(Connection conn = DriverManager.getConnection(url)){
+
+            PreparedStatement selectDescOrder = conn.prepareStatement("SELECT `userID` FROM `stats` WHERE serverID = ? ORDER BY `time` DESC");
+            selectDescOrder.setLong(1, guildID);
+
+            ResultSet rs = selectDescOrder.executeQuery(); // Execute the command
+
+            while(rs.next()){
+                if(rs.getLong(1) == userID){
+                    break;
+                }
+                ++rankingCounter;
+            }
+            rs.close();
+            conn.close();
+
+        }
+        catch(SQLException ev){
+            ev.printStackTrace();
+        }
+        return rankingCounter;
     }
 }
