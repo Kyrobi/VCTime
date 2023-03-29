@@ -25,7 +25,6 @@ import static java.lang.System.exit;
 public class Main extends ListenerAdapter {
 
     public static JDA jda;
-    public static String prefix = "$";
     public static final String databaseFileName = "vcstats.db";
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException {
