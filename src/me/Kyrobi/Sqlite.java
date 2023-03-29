@@ -19,9 +19,8 @@ public class Sqlite {
     public void createNewTable(){
         String sql = "CREATE TABLE IF NOT EXISTS stats ('userID' integer NOT NULL DEFAULT 0, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
 
-        try{
+        try(Connection conn = DriverManager.getConnection(url)){
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection(url); //Tries to open the connection
             Statement stmt = conn.createStatement(); // Formulate the command to execute
             stmt.execute(sql);  //Execute said command
         }
@@ -37,9 +36,8 @@ public class Sqlite {
 
         String sqlcommand = "INSERT INTO stats(userID, time, serverID) VALUES(?,?,?)";
 
-        try{
+        try(Connection conn = DriverManager.getConnection(url)){
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection(url);
             PreparedStatement stmt = conn.prepareStatement(sqlcommand);
             stmt.setLong(1, userID); // The first column will contain the ID
             stmt.setLong(2, time); // The second column will contain the amount
@@ -55,9 +53,8 @@ public class Sqlite {
     //Updates an existing value in the database
     public void update(long userID, long time, long serverID){
 
-        try{
+        try(Connection conn = DriverManager.getConnection(url)){
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection(url);
             //PreparedStatement stmt = conn.prepareStatement(updateCommand);
             PreparedStatement update = conn.prepareStatement("UPDATE stats SET time = ? WHERE userID = ? AND serverID = ?");
 
@@ -80,10 +77,9 @@ public class Sqlite {
         // String to get all the values from the database
         int count = 0;
 
-        try{
+        try(Connection conn = DriverManager.getConnection(url)){
             //System.out.println("Connecting...");
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection(url); // Make connection
             PreparedStatement ifexists = conn.prepareStatement("SELECT * FROM stats WHERE userID = ? AND serverID = ?");
 
             ifexists.setLong(1, userID);
@@ -120,10 +116,9 @@ public class Sqlite {
     public long getTime(long userId, long serverID){
         long amount = 0;
 
-        try {
+        try (Connection conn = DriverManager.getConnection(url)){
             //System.out.println("Connecting...");
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection(url); // Make connection
             PreparedStatement getAmount = conn.prepareStatement("SELECT * FROM stats WHERE userID = ? AND serverID = ?");
 
             getAmount.setLong(1, userId);
