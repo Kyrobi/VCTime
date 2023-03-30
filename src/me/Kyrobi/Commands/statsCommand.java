@@ -65,20 +65,20 @@ public class statsCommand extends ListenerAdapter {
         File dbfile = new File("");
         String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
 
-        int rankingCounter = 1;
+        long rankingCounter = 0;
         try(Connection conn = DriverManager.getConnection(url)){
 
-            PreparedStatement selectDescOrder = conn.prepareStatement("SELECT `userID` FROM `stats` WHERE serverID = ? ORDER BY `time` DESC");
+            PreparedStatement selectDescOrder = conn.prepareStatement(
+                    "SELECT rank FROM (SELECT *, RANK() OVER (ORDER BY `time` DESC) AS `rank` FROM `stats` WHERE serverID = ?) WHERE userID = ?");
             selectDescOrder.setLong(1, guildID);
+            selectDescOrder.setLong(2, userID);
 
             ResultSet rs = selectDescOrder.executeQuery(); // Execute the command
 
-            while(rs.next()){
-                if(rs.getLong(1) == userID){
-                    break;
-                }
-                ++rankingCounter;
-            }
+            rs.next();
+
+            rankingCounter = rs.getLong(1);
+
             rs.close();
             conn.close();
 
