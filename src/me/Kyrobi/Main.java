@@ -156,9 +156,21 @@ public class Main extends ListenerAdapter {
 
         final long hr = TimeUnit.MILLISECONDS.toHours(durationInMillis);
         final long min = TimeUnit.MILLISECONDS.toMinutes(durationInMillis - TimeUnit.HOURS.toMillis(hr));
-        final long sec = TimeUnit.MILLISECONDS.toSeconds(durationInMillis - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
-        final long ms = TimeUnit.MILLISECONDS.toMillis(durationInMillis - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
+        // final long sec = TimeUnit.MILLISECONDS.toSeconds(durationInMillis - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+        // final long ms = TimeUnit.MILLISECONDS.toMillis(durationInMillis - - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
         return String.format("%02dh %02dm", hr, min);
+    }
+
+    public static String millisecondsToTimeStampDays(long durationInMillis) {
+
+        //Reference: https://stackoverflow.com/questions/6710094/how-to-format-an-elapsed-time-interval-in-hhmmss-sss-format-in-java
+
+        final long day = TimeUnit.MILLISECONDS.toDays(durationInMillis);
+        final long hr = TimeUnit.MILLISECONDS.toHours(durationInMillis - TimeUnit.DAYS.toMillis(day));
+        final long min = TimeUnit.MILLISECONDS.toMinutes(durationInMillis - TimeUnit.DAYS.toMillis(day) - TimeUnit.HOURS.toMillis(hr));
+        // final long sec = TimeUnit.MILLISECONDS.toSeconds(durationInMillis - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
+        // final long ms = TimeUnit.MILLISECONDS.toMillis(durationInMillis - - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
+        return String.format("%02dd %02dh %02dm", day, hr, min);
     }
 
 }

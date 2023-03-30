@@ -17,6 +17,7 @@ import java.util.EventListener;
 import java.util.concurrent.TimeUnit;
 
 import static me.Kyrobi.Main.millisecondsToTimeStamp;
+import static me.Kyrobi.Main.millisecondsToTimeStampDays;
 
 public class leaderboardCommand extends ListenerAdapter{
 
@@ -89,7 +90,7 @@ public class leaderboardCommand extends ListenerAdapter{
                 leaderboardNames.append(name);
             }
 
-            String serverTotal = "Server total: " + millisecondsToTimeStamp(getServerTotalTime(e.getGuild().getIdLong()));
+            String serverTotal = "**Server total**: " + millisecondsToTimeStampDays(getServerTotalTime(e.getGuild().getIdLong()));
             leaderboardNames.append(serverTotal);
             leaderboardNames.append("\n\n");
 
