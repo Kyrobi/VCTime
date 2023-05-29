@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.EventListener;
 
+import static me.Kyrobi.Main.log_actions;
 import static me.Kyrobi.Main.millisecondsToTimeStamp;
 
 public class statsCommand extends ListenerAdapter {
@@ -46,15 +47,11 @@ public class statsCommand extends ListenerAdapter {
                 Tracker.startStats(e.getMember());
             }
 
-
-            botUtils fileWrite = new botUtils();
-
-            try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: stats`");
-                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: stats`");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            String logMessage = "" +
+                    "Guild: " + e.getGuild().getName() + "  **|**  " + "User: " + e.getMember().getEffectiveName() + "\n" +
+                    "**Command: **" + e.getName().toLowerCase() + "\n-";
+            Main.logInfo(Main.LogType.STATS_COMMAND, logMessage);
+            log_actions(e.getMember(), e.getGuild(), Main.LogType.STATS_COMMAND, e.getName());
 
             e.reply(author.getAsMention() + "\nLeaderboard Ranking: **#" + getPlayerLeaderboardPosition(e.getGuild().getIdLong(), e.getMember().getIdLong()) + "**\nTotal Time Spent: **" +  millisecondsToTimeStamp(sqlite.getTime(authorID, serverID)) + "**").queue();
         }

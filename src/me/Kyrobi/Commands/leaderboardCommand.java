@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.concurrent.TimeUnit;
 
-import static me.Kyrobi.Main.millisecondsToTimeStamp;
-import static me.Kyrobi.Main.millisecondsToTimeStampDays;
+import static me.Kyrobi.Main.*;
 
 public class leaderboardCommand extends ListenerAdapter{
 
@@ -40,19 +39,20 @@ public class leaderboardCommand extends ListenerAdapter{
             botUtils fileWrite = new botUtils();
 
 
-            int nameInterval = 20; // Shows 25 names per page
+            int nameInterval = 10; // Shows X names per page
             long requestedPages = 0; // Which page the user is requesting
             int pagesPossible; // How many pages are possible given the amount of users returned
+            long requestedPage_forLog = 0;
             if(leaderboardOption != null){
                 requestedPages = leaderboardOption.getAsLong();
+                requestedPage_forLog = leaderboardOption.getAsLong();
             }
 
-            try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard " + requestedPages +"`");
-                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: leaderboard " + requestedPages +"`");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            String logMessage = "" +
+                    "Guild: " + e.getGuild().getName() + "  **|**  " + "User: " + e.getMember().getEffectiveName() + " `" + e.getMember().getUser().getName() + "#" + e.getMember().getUser().getDiscriminator() + "` " + "\n" +
+                    "**Command: **" + e.getName().toLowerCase() + " " +  requestedPage_forLog + "\n-";
+            Main.logInfo(Main.LogType.LEADERBOARD_COMMAND, logMessage);
+            log_actions(e.getMember(), e.getGuild(), LogType.LEADERBOARD_COMMAND, e.getName() + " " + requestedPage_forLog);
 
             // Get all the members from this guild
             allMembers = getMembers(e.getGuild().getIdLong());

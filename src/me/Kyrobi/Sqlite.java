@@ -12,23 +12,61 @@ public class Sqlite {
     //String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + "/counting.db";
     //String pathSep = System.getProperty("File.separator");
 
-    String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName; // For linux to work
+    public String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName; // For linux to work
     //String url = "jdbc:sqlite:/home/kyrobi/Bot/Mio/counting.db";
 
     // This function will create a new database if one doesn't exist
     public void createNewTable(){
-        String sql = "CREATE TABLE IF NOT EXISTS stats ('userID' integer NOT NULL DEFAULT 0, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
+        String create_stats_table = "CREATE TABLE IF NOT EXISTS stats ('userID' integer NOT NULL DEFAULT 0, 'time' integer NOT NULL DEFAULT 0, 'serverID' integer NOT NULL DEFAULT 0)";
+
+        String create_general_stats_table =
+                "CREATE TABLE IF NOT EXISTS general_stats " +
+                        "(" +
+                        "'id' INTEGER, " +
+                        "'time' TEXT, " +
+                        "'total_members' INTEGER, " +
+                        "'total_servers' INTEGER, " +
+                        "'members_in_vc' INTEGER, " +
+                        "'time_in_vc' INTEGER, " +
+                        "'times_joined_vc' INTEGER, " +
+                        "'times_left_vc' INTEGER, " +
+                        "'times_moved_vc' INTEGER, " +
+                        "PRIMARY KEY('id' AUTOINCREMENT)" +
+                        ")";
+
+        String create_actions_table =
+                "CREATE TABLE IF NOT EXISTS actions_log " +
+                        "(" +
+                        "'id' INTEGER, " +
+                        "'time' TEXT, " +
+                        "'user' TEXT, " +
+                        "'name' TEXT, " +
+                        "'server' TEXT, " +
+                        "'event_type' TEXT, " +
+                        "'command' TEXT, " +
+                        "'time_in_vc' INTEGER, " +
+                        "PRIMARY KEY('id' AUTOINCREMENT)" +
+                        ")";
+
 
         try(Connection conn = DriverManager.getConnection(url)){
             Class.forName("org.sqlite.JDBC");
             Statement stmt = conn.createStatement(); // Formulate the command to execute
-            stmt.execute(sql);  //Execute said command
+            stmt.execute(create_stats_table);  //Execute said command
+
+            stmt.execute(create_general_stats_table);
+
+            stmt.execute(create_actions_table);
         }
         catch (SQLException | ClassNotFoundException error){
             System.out.println(error.getMessage());
         }
 
         System.out.println("Database does not exist. Creating a new one at " + url);
+
+        /*
+        General Stats table
+         */
     }
 
     //Insert a new value into the database
@@ -136,5 +174,10 @@ public class Sqlite {
         }
         return amount;
     }
+
+
+    /*
+    Creating logging table and add stuff to it
+     */
 }
 

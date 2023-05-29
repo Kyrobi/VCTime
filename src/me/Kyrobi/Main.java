@@ -7,27 +7,68 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+
 import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
+import static me.Kyrobi.StatsTracker.*;
+import static me.Kyrobi.Tracker.joinTracker;
+import static me.Kyrobi.Tracker.saveStats;
 
 public class Main extends ListenerAdapter {
+
+    // What type of logging is this?
+    public enum LogType{
+        JOIN_EVENT,
+        LEAVE_EVENT,
+        MOVE_EVENT,
+        STATS_COMMAND,
+        HELP_COMMAND,
+        LEADERBOARD_COMMAND
+    }
 
     public static JDA jda;
     public static final String databaseFileName = "vcstats.db";
 
+
     public static void main(String[] args) throws LoginException, InterruptedException, IOException {
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Shutting down ... saving user stats");
+
+            // Create a copy of the key set to avoid ConcurrentModificationException
+            Map<Long, User> copiedJointracker = new HashMap<Long, User>(joinTracker);
+
+            // Save all the user's stats before fully exiting
+            for (Long key: copiedJointracker.keySet()) {
+                tempTimeTracker.put(key, copiedJointracker.get(key));
+                saveStats(copiedJointracker.get(key).getGuildID(), key);
+            }
+        }));
+
 
         Path tokenFile;
         String token = null;
@@ -138,15 +179,63 @@ public class Main extends ListenerAdapter {
 //        me.Kyrobi.Sqlite sqlite = new me.Kyrobi.Sqlite();
 //        sqlite.insert(559428414709301279L, 99999999, 793748152355389481L);
 
+
+        /*
+        Run every minute based on system time
+         */
+        Calendar calendar = Calendar.getInstance();
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new logging_stats(), millisToNextHour(calendar), 60*60*1000, TimeUnit.MILLISECONDS);
+
+
+        /*
+        When starting, add all users existing in a vc into the tracker
+         */
+        for(Guild guilds: jda.getGuilds()){
+            for(Member member: guilds.getMembers()){
+                if(member.getVoiceState().inVoiceChannel()){
+                    joinTracker.put(member.getIdLong(), new User(member.getGuild().getIdLong(), System.currentTimeMillis()));
+                }
+            }
+        }
+
+
+
+
+
+
+
+//        Runnable helloRunnable = new Runnable() {
+//            public void run() {
+//                System.out.println("JoinHashMap   Size:" + joinTracker.size());
+//
+//                System.out.println("Users");
+//                for (Long key: joinTracker.keySet()) {
+//                    System.out.println("UserID:" + key + " GuilID" + joinTracker.get(key).getGuildID() + " Time:" + joinTracker.get(key).getTime() + " Current Time:" + System.currentTimeMillis());;
+//                }
+//            }
+//        };
+//
+//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//        executor.scheduleAtFixedRate(helloRunnable, 0, 1, TimeUnit.SECONDS);
+
     }
 
-    public static void sendToDiscord(String message){
-        TextChannel textChannel = jda.getTextChannelById("1000785699219439637");
-        textChannel.sendMessage(message).queue();
-    }
+    public static void logInfo(LogType logType, String message){
 
-    public static void sendToDiscordCommand(String message){
-        TextChannel textChannel = jda.getTextChannelById("1025861800383758346");
+        TextChannel textChannel = null;
+        String logMessage = "";
+        if(logType.equals(LogType.JOIN_EVENT) || logType.equals(LogType.LEAVE_EVENT) || logType.equals(LogType.MOVE_EVENT)){
+            // #logs channel
+            textChannel = jda.getTextChannelById("1000785699219439637");
+        }
+
+        else if(logType.equals(LogType.HELP_COMMAND) || logType.equals(LogType.STATS_COMMAND) || logType.equals(LogType.LEADERBOARD_COMMAND)){
+            // #commands channel
+            textChannel = jda.getTextChannelById("1025861800383758346");
+        }
+
+
         textChannel.sendMessage(message).queue();
     }
 
@@ -173,4 +262,89 @@ public class Main extends ListenerAdapter {
         return String.format("%02dd %02dh %02dm", day, hr, min);
     }
 
+    static class logging_stats implements Runnable {
+        @Override
+        public void run() {
+            File dbfile = new File("");
+            String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+
+            String sqlcommand = "INSERT INTO general_stats" +
+                    "(time, total_members, total_servers, members_in_vc, time_in_vc, times_joined_vc, times_left_vc, times_moved_vc) " +
+                    "VALUES(?,?,?,?,?,?,?,?)";
+
+            try(Connection conn = DriverManager.getConnection(url)){
+                Class.forName("org.sqlite.JDBC");
+                PreparedStatement stmt = conn.prepareStatement(sqlcommand);
+
+                stmt.setString(1, getDate());
+                stmt.setLong(2, getTotalMembers());
+                stmt.setLong(3, getTotalServers());
+                stmt.setLong(4, getTotalMembersInVC());
+                stmt.setString(5, getTotalCallTimeInLastHourInMS());
+                stmt.setLong(6, getTimesJoined());
+                stmt.setLong(7, getTimesLeft());
+                stmt.setLong(8, getTimesMove());
+                stmt.executeUpdate();
+                conn.close();
+            }
+            catch(SQLException | ClassNotFoundException error){
+                System.out.println(error.getMessage());
+            }
+
+            tempTimeTracker.clear();
+            for (Long key: joinTracker.keySet()) {
+                tempTimeTracker.put(key, joinTracker.get(key));
+            }
+
+        }
+    }
+
+    public static void log_actions(Member member, Guild guild, LogType eventType, String command) {
+        File dbfile = new File("");
+        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+
+        String sqlcommand = "INSERT INTO actions_log" +
+                "(time, user, name, server, event_type, command, time_in_vc) " +
+                "VALUES(?,?,?,?,?,?,?)";
+
+        long currentTime = System.currentTimeMillis();
+        long timeDifference = 0;
+        if(joinTracker.containsKey(member.getIdLong())){
+            timeDifference = currentTime - joinTracker.get(member.getIdLong()).getTime();
+        }
+
+
+        try(Connection conn = DriverManager.getConnection(url)){
+            Class.forName("org.sqlite.JDBC");
+            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
+
+            stmt.setString(1, getDate());
+            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
+            stmt.setString(3, member.getEffectiveName());
+            stmt.setString(4, guild.getName());
+            stmt.setString(5, String.valueOf(eventType));
+            stmt.setString(6, command);
+            stmt.setString(7, millisecondsToTimeStampDays(timeDifference));
+            stmt.executeUpdate();
+            conn.close();
+        }
+        catch(SQLException | ClassNotFoundException error){
+            System.out.println(error.getMessage());
+        }
+
+        tempTimeTracker.clear();
+        for (Long key: joinTracker.keySet()) {
+            tempTimeTracker.put(key, joinTracker.get(key));
+        }
+    }
+
+    private static long millisToNextHour(Calendar calendar) {
+        int minutes = calendar.get(Calendar.MINUTE);
+        int seconds = calendar.get(Calendar.SECOND);
+        int millis = calendar.get(Calendar.MILLISECOND);
+        int minutesToNextHour = 60 - minutes;
+        int secondsToNextHour = 60 - seconds;
+        int millisToNextHour = 1000 - millis;
+        return minutesToNextHour*60*1000 + secondsToNextHour*1000 + millisToNextHour;
+    }
 }

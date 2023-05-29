@@ -1,11 +1,14 @@
 package me.Kyrobi.Commands;
 
+import me.Kyrobi.Main;
 import me.Kyrobi.botUtils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
+
+import static me.Kyrobi.Main.log_actions;
 
 public class helpCommand extends ListenerAdapter {
 
@@ -26,13 +29,12 @@ public class helpCommand extends ListenerAdapter {
                     "\nUsers in a voice channel named `AFK` won't have their time counted."
             ).queue();
 
-            botUtils fileWrite = new botUtils();
-            try {
-                fileWrite.writeToFile("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: help`");
-                fileWrite.writeToFileCommand("`" + e.getGuild().getName() + "`" + " | **" + authorName + "** | `issued command: help`");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            String logMessage = "" +
+                    "Guild: " + e.getGuild().getName() + "  **|**  " + "User: " + e.getMember().getEffectiveName() + "\n" +
+                    "**Command: **" + e.getName().toLowerCase() + "\n-";
+            Main.logInfo(Main.LogType.HELP_COMMAND, logMessage);
+
+            log_actions(e.getMember(), e.getGuild(), Main.LogType.HELP_COMMAND, e.getName());
         }
     }
 }
