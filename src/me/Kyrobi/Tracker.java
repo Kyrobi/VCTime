@@ -1,6 +1,7 @@
 package me.Kyrobi;
 
 import me.Kyrobi.botUtils;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static me.Kyrobi.Main.jda;
 import static me.Kyrobi.Main.log_actions;
 import static me.Kyrobi.StatsTracker.*;
 
@@ -56,7 +58,7 @@ public class Tracker extends ListenerAdapter {
                 "Guild: " + e.getGuild().getName() + "  **|**  " + "User: " + e.getMember().getEffectiveName() + " `" + e.getMember().getUser().getName() + "#" + e.getMember().getUser().getDiscriminator() + "` " +"\n" +
                 "**Left: **" + e.getChannelLeft().getName() + "\n-";
         Main.logInfo(Main.LogType.LEAVE_EVENT,logMessage);
-        log_actions(e.getMember(), e.getGuild(), Main.LogType.LEAVE_EVENT, "Leave Channel");
+        log_actions(e.getMember(), e.getGuild(), Main.LogType.LEAVE_EVENT, "Leave Channel" );
 
         ++timesLeft;
     }
@@ -125,6 +127,7 @@ public class Tracker extends ListenerAdapter {
             long previousTime = sqlite.getTime(userID, serverID);
             long newTime = previousTime + timeDifference;
             sqlite.update(userID, newTime, serverID);
+            log_actions(e, e.getGuild(), Main.LogType.SAVING_STATS, "Saving Stats", timeDifference);
         }
         //If the user isn't in the database matching the guild, we add them to it
         else{
@@ -134,6 +137,7 @@ public class Tracker extends ListenerAdapter {
 
         //Remove the user from the cache
         joinTracker.remove(userID);
+
 
     }
 
@@ -157,11 +161,15 @@ public class Tracker extends ListenerAdapter {
 
         Sqlite sqlite = new Sqlite();
 
+        Guild guild = jda.getGuildById(guildID);
+        Member member = (Member)jda.getUserById(memberID);
+
         //If the user exists in the database, we update their values
         if(sqlite.exists(userID, serverID)){
             long previousTime = sqlite.getTime(userID, serverID);
             long newTime = previousTime + timeDifference;
             sqlite.update(userID, newTime, serverID);
+            log_actions(member, guild, Main.LogType.JOIN_EVENT, "Join Channel", timeDifference);
         }
         //If the user isn't in the database matching the guild, we add them to it
         else{

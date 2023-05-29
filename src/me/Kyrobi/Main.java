@@ -42,7 +42,8 @@ public class Main extends ListenerAdapter {
         MOVE_EVENT,
         STATS_COMMAND,
         HELP_COMMAND,
-        LEADERBOARD_COMMAND
+        LEADERBOARD_COMMAND,
+        SAVING_STATS
     }
 
     public static JDA jda;
@@ -304,14 +305,8 @@ public class Main extends ListenerAdapter {
         String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
 
         String sqlcommand = "INSERT INTO actions_log" +
-                "(time, user, name, server, event_type, command, time_in_vc) " +
-                "VALUES(?,?,?,?,?,?,?)";
-
-        long currentTime = System.currentTimeMillis();
-        long timeDifference = 0;
-        if(joinTracker.containsKey(member.getIdLong())){
-            timeDifference = currentTime - joinTracker.get(member.getIdLong()).getTime();
-        }
+                "(time, user, name, server, event_type, command) " +
+                "VALUES(?,?,?,?,?,?)";
 
 
         try(Connection conn = DriverManager.getConnection(url)){
@@ -324,17 +319,39 @@ public class Main extends ListenerAdapter {
             stmt.setString(4, guild.getName());
             stmt.setString(5, String.valueOf(eventType));
             stmt.setString(6, command);
-            stmt.setString(7, millisecondsToTimeStampDays(timeDifference));
             stmt.executeUpdate();
             conn.close();
         }
         catch(SQLException | ClassNotFoundException error){
             System.out.println(error.getMessage());
         }
+    }
 
-        tempTimeTracker.clear();
-        for (Long key: joinTracker.keySet()) {
-            tempTimeTracker.put(key, joinTracker.get(key));
+    public static void log_actions(Member member, Guild guild, LogType eventType, String command, long timeInVC) {
+        File dbfile = new File("");
+        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+
+        String sqlcommand = "INSERT INTO actions_log" +
+                "(time, user, name, server, event_type, command, time_in_vc) " +
+                "VALUES(?,?,?,?,?,?,?)";
+
+
+        try(Connection conn = DriverManager.getConnection(url)){
+            Class.forName("org.sqlite.JDBC");
+            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
+
+            stmt.setString(1, getDate());
+            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
+            stmt.setString(3, member.getEffectiveName());
+            stmt.setString(4, guild.getName());
+            stmt.setString(5, String.valueOf(eventType));
+            stmt.setString(6, command);
+            stmt.setString(7, millisecondsToTimeStampDays(timeInVC));
+            stmt.executeUpdate();
+            conn.close();
+        }
+        catch(SQLException | ClassNotFoundException error){
+            System.out.println(error.getMessage());
         }
     }
 
