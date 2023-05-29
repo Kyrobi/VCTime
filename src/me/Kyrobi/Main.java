@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.System.exit;
 import static java.lang.System.setOut;
 import static me.Kyrobi.StatsTracker.*;
-import static me.Kyrobi.Tracker.joinTracker;
-import static me.Kyrobi.Tracker.saveStats;
+import static me.Kyrobi.Tracker.*;
 
 public class Main extends ListenerAdapter {
 
@@ -63,11 +62,16 @@ public class Main extends ListenerAdapter {
             // Create a copy of the key set to avoid ConcurrentModificationException
             Map<Long, User> copiedJointracker = new HashMap<Long, User>(joinTracker);
 
+            System.out.println("CopiedJoinTacker has: " + copiedJointracker.size());
+
             // Save all the user's stats before fully exiting
             for (Long key: copiedJointracker.keySet()) {
-                tempTimeTracker.put(key, copiedJointracker.get(key));
-                saveStats(copiedJointracker.get(key).getGuildID(), key);
+                //tempTimeTracker.put(key, copiedJointracker.get(key));
+                saveStatsShutdown(copiedJointracker.get(key).getGuildID(), key);
+                // System.out.println("Saving: " + key);
             }
+
+
         }));
 
 
@@ -194,7 +198,7 @@ public class Main extends ListenerAdapter {
          */
         for(Guild guilds: jda.getGuilds()){
             for(Member member: guilds.getMembers()){
-                if(member.getVoiceState().inVoiceChannel()){
+                if(member.getVoiceState().inVoiceChannel() && !(member.getUser().isBot())){
                     joinTracker.put(member.getIdLong(), new User(member.getGuild().getIdLong(), System.currentTimeMillis()));
                 }
             }
@@ -206,19 +210,19 @@ public class Main extends ListenerAdapter {
 
 
 
-//        Runnable helloRunnable = new Runnable() {
-//            public void run() {
-//                System.out.println("JoinHashMap   Size:" + joinTracker.size());
-//
+        Runnable helloRunnable = new Runnable() {
+            public void run() {
+                System.out.println("People in voice calls: " + joinTracker.size());
+
 //                System.out.println("Users");
 //                for (Long key: joinTracker.keySet()) {
 //                    System.out.println("UserID:" + key + " GuilID" + joinTracker.get(key).getGuildID() + " Time:" + joinTracker.get(key).getTime() + " Current Time:" + System.currentTimeMillis());;
 //                }
-//            }
-//        };
-//
-//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-//        executor.scheduleAtFixedRate(helloRunnable, 0, 1, TimeUnit.SECONDS);
+            }
+        };
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(helloRunnable, 0, 10, TimeUnit.SECONDS);
 
     }
 

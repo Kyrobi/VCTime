@@ -10,7 +10,9 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static me.Kyrobi.Main.jda;
@@ -91,6 +93,11 @@ public class Tracker extends ListenerAdapter {
 
     public static void startStats(Member e){
 
+        // Don't save bots time in VC
+        if(e.getUser().isBot()){
+            return;
+        }
+
 
         long userID = Long.parseLong(e.getId());
         long currentTime = System.currentTimeMillis();
@@ -122,6 +129,11 @@ public class Tracker extends ListenerAdapter {
 
         Sqlite sqlite = new Sqlite();
 
+        // Don't save bots time in VC
+        if(e.getUser().isBot()){
+            return;
+        }
+
         //If the user exists in the database, we update their values
         if(sqlite.exists(userID, serverID)){
             long previousTime = sqlite.getTime(userID, serverID);
@@ -141,7 +153,7 @@ public class Tracker extends ListenerAdapter {
 
     }
 
-    public static void saveStats(long guildID, long memberID){
+    public static void saveStatsShutdown(long guildID, long memberID){
         long userID = memberID;
         long serverID = guildID;
 
@@ -161,15 +173,19 @@ public class Tracker extends ListenerAdapter {
 
         Sqlite sqlite = new Sqlite();
 
-        Guild guild = jda.getGuildById(guildID);
-        Member member = (Member)jda.getUserById(memberID);
+//        Guild guild = jda.getGuildById(guildID);
+//        Member member = guild.getMemberById(memberID);
+
+        // Don't save bots time in VC
+        if(jda.getUserById(memberID).isBot()){
+            return;
+        }
 
         //If the user exists in the database, we update their values
         if(sqlite.exists(userID, serverID)){
             long previousTime = sqlite.getTime(userID, serverID);
             long newTime = previousTime + timeDifference;
             sqlite.update(userID, newTime, serverID);
-            log_actions(member, guild, Main.LogType.JOIN_EVENT, "Join Channel", timeDifference);
         }
         //If the user isn't in the database matching the guild, we add them to it
         else{
@@ -179,7 +195,6 @@ public class Tracker extends ListenerAdapter {
 
         //Remove the user from the cache
         joinTracker.remove(userID);
-
     }
 
 }

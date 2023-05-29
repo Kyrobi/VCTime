@@ -4,6 +4,7 @@ import org.w3c.dom.ls.LSOutput;
 
 import java.io.File;
 import java.sql.*;
+import java.util.List;
 import java.util.Objects;
 
 public class Sqlite {
@@ -85,6 +86,39 @@ public class Sqlite {
         }
         catch(SQLException | ClassNotFoundException error){
             System.out.println(error.getMessage());
+        }
+    }
+
+    public void bulkInsert(List<Long> userID, List<Long>time, List<Long> serverID){
+        try(Connection conn = DriverManager.getConnection(url)){
+            Class.forName("org.sqlite.JDBC");
+            //PreparedStatement stmt = conn.prepareStatement(updateCommand);
+            PreparedStatement update = conn.prepareStatement("UPDATE stats SET time = ? WHERE userID = ? AND serverID = ?");
+
+            // Disable auto-commit to enable batch processing
+            conn.setAutoCommit(false);
+
+            for (int i = 0; i < userID.size(); i++){
+                update.setLong(1, time.get(i));
+                update.setLong(2, userID.get(i));
+                update.setLong(3, serverID.get(i));
+                update.addBatch();
+            }
+
+            // Execute the batch
+            update.executeBatch();
+
+            // Commit the changes
+            conn.commit();
+
+            // Enable auto-commit again
+            conn.setAutoCommit(true);
+
+            conn.close();
+
+        }
+        catch(SQLException | ClassNotFoundException e){
+            System.out.println(e.getMessage());
         }
     }
 

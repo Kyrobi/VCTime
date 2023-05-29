@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="VCTime:jar">
+    <output-path>$PROJECT_DIR$/../../..</output-path>
+    <root id="archive" name="VCTime.jar">
+      <element id="module-output" name="VCTime" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../API/JDA/JDA-4.4.0_350-withDependencies.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../API/SQlite/sqlite-jdbc-3.36.0.3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
