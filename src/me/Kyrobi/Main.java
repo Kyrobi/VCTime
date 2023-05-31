@@ -210,7 +210,7 @@ public class Main extends ListenerAdapter {
 
 
 
-        Runnable helloRunnable = new Runnable() {
+        Runnable printHowManyInCall = new Runnable() {
             public void run() {
                 System.out.println("People in voice calls: " + joinTracker.size());
 
@@ -222,7 +222,7 @@ public class Main extends ListenerAdapter {
         };
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(helloRunnable, 0, 10, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(printHowManyInCall, 0, 10, TimeUnit.SECONDS);
 
     }
 

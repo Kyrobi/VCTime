@@ -54,8 +54,9 @@ public class statsCommand extends ListenerAdapter {
 
             if(sqlite.exists(authorID, serverID)){
                 e.reply(author.getAsMention() + "\nLeaderboard Ranking: **#" + getPlayerLeaderboardPosition(e.getGuild().getIdLong(), e.getMember().getIdLong()) + "**\nTotal Time Spent: **" +  millisecondsToTimeStamp(sqlite.getTime(authorID, serverID)) + "**").queue();
+            } else {
+                e.reply("You have never been in a voice call before on this server. Please join one to start tracking your time.").queue();
             }
-            e.reply("You have never been in a voice call before on this server. Please join one to start tracking your time.").queue();
         }
 
     }

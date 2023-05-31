@@ -175,10 +175,17 @@ public class Tracker extends ListenerAdapter {
 //        Guild guild = jda.getGuildById(guildID);
 //        Member member = guild.getMemberById(memberID);
 
+        // If user isn't found, break early
+        if(jda.getUserById(memberID) == null){
+            return;
+        }
+
         // Don't save bots time in VC
         if(jda.getUserById(memberID).isBot()){
             return;
         }
+
+        System.out.println("Saving: " + userID);
 
         //If the user exists in the database, we update their values
         if(sqlite.exists(userID, serverID)){
