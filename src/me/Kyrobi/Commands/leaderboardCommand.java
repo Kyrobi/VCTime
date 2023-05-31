@@ -2,7 +2,6 @@ package me.Kyrobi.Commands;
 
 
 import me.Kyrobi.Main;
-import me.Kyrobi.botUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -35,8 +34,6 @@ public class leaderboardCommand extends ListenerAdapter{
             ArrayList<String> allMembers;
             ArrayList<String> pagedNames = new ArrayList<>();
             OptionMapping leaderboardOption = e.getOption("page");
-
-            botUtils fileWrite = new botUtils();
 
 
             int nameInterval = 10; // Shows X names per page

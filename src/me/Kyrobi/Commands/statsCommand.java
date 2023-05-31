@@ -3,7 +3,6 @@ package me.Kyrobi.Commands;
 import me.Kyrobi.Main;
 import me.Kyrobi.Sqlite;
 import me.Kyrobi.Tracker;
-import me.Kyrobi.botUtils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -53,7 +52,10 @@ public class statsCommand extends ListenerAdapter {
             Main.logInfo(Main.LogType.STATS_COMMAND, logMessage);
             log_actions(e.getMember(), e.getGuild(), Main.LogType.STATS_COMMAND, e.getName());
 
-            e.reply(author.getAsMention() + "\nLeaderboard Ranking: **#" + getPlayerLeaderboardPosition(e.getGuild().getIdLong(), e.getMember().getIdLong()) + "**\nTotal Time Spent: **" +  millisecondsToTimeStamp(sqlite.getTime(authorID, serverID)) + "**").queue();
+            if(sqlite.exists(authorID, serverID)){
+                e.reply(author.getAsMention() + "\nLeaderboard Ranking: **#" + getPlayerLeaderboardPosition(e.getGuild().getIdLong(), e.getMember().getIdLong()) + "**\nTotal Time Spent: **" +  millisecondsToTimeStamp(sqlite.getTime(authorID, serverID)) + "**").queue();
+            }
+            e.reply("You have never been in a voice call before on this server. Please join one to start tracking your time.").queue();
         }
 
     }

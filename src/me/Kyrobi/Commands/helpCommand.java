@@ -1,7 +1,6 @@
 package me.Kyrobi.Commands;
 
 import me.Kyrobi.Main;
-import me.Kyrobi.botUtils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
