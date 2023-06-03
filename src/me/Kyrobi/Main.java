@@ -28,7 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.exit;
-import static java.lang.System.setOut;
 import static me.Kyrobi.StatsTracker.*;
 import static me.Kyrobi.Tracker.*;
 
@@ -51,30 +50,6 @@ public class Main extends ListenerAdapter {
 
     public static void main(String[] args) throws LoginException, InterruptedException, IOException {
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Shutting down ... saving user stats");
-
-            // Create a copy of the key set to avoid ConcurrentModificationException
-            Map<Long, User> copiedJointracker = new HashMap<Long, User>(joinTracker);
-
-            System.out.println("CopiedJoinTacker has: " + copiedJointracker.size());
-
-            // Save all the user's stats before fully exiting
-            for (Long key: copiedJointracker.keySet()) {
-                //tempTimeTracker.put(key, copiedJointracker.get(key));
-                saveStatsShutdown(copiedJointracker.get(key).getGuildID(), key);
-                // System.out.println("Saving: " + key);
-            }
-
-
-        }));
-
-
         Path tokenFile;
         String token = null;
 
@@ -94,38 +69,6 @@ public class Main extends ListenerAdapter {
             exit(1);
         }
 
-        // jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
-
-        //Updates presence with stats about the bot
-
-        //Reference: https://stackoverflow.com/questions/1220975/calling-a-function-every-10-minutes
-//        int SECONDS = 20; // The delay in seconds
-//
-//        final int[] memberCount = {0};
-//        final int[] presenseSwitch = {1}; // Controls which stats so show in presence
-//
-//
-//        Timer timer = new Timer();
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() { // Function runs every MINUTES minutes.
-//
-//                if(presenseSwitch[0] == 1){
-//                    jda.getPresence().setActivity(Activity.playing("In " + jda.getGuilds().size() + " servers!"));
-//                    presenseSwitch[0] = 0;
-//                }
-//
-//                else if(presenseSwitch[0] == 0){
-//                    for(Guild a: jda.getGuilds()){
-//                        memberCount[0] += a.getMemberCount();
-//                    }
-//                    jda.getPresence().setActivity(Activity.playing("Spectating " + Arrays.toString(memberCount) + " members!"));
-//                    presenseSwitch[0] = 1;
-//                    memberCount[0] = 0; //Resets to 0 or else it will keep stacking
-//                }
-//
-//            }
-//        }, 0, 1000 * SECONDS);
 
 
         final int[] memberCount = {0};
@@ -165,8 +108,6 @@ public class Main extends ListenerAdapter {
         }
 
         //Registers the event for command tracking and time tracking
-
-
         jda.upsertCommand("help", "Shows the available commands").queue();
         jda.addEventListener(new helpCommand());
 
@@ -181,18 +122,6 @@ public class Main extends ListenerAdapter {
         jda.addEventListener(new Tracker());
 
 
-//        me.Kyrobi.Sqlite sqlite = new me.Kyrobi.Sqlite();
-//        sqlite.insert(559428414709301279L, 99999999, 793748152355389481L);
-
-
-        /*
-        Run every minute based on system time
-         */
-        Calendar calendar = Calendar.getInstance();
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new logging_stats(), millisToNextHour(calendar), 60*60*1000, TimeUnit.MILLISECONDS);
-
-
         /*
         When starting, add all users existing in a vc into the tracker
          */
@@ -204,25 +133,28 @@ public class Main extends ListenerAdapter {
             }
         }
 
-
-
-
-
-
-
         Runnable printHowManyInCall = new Runnable() {
             public void run() {
                 System.out.println("People in voice calls: " + joinTracker.size());
-
-//                System.out.println("Users");
-//                for (Long key: joinTracker.keySet()) {
-//                    System.out.println("UserID:" + key + " GuilID" + joinTracker.get(key).getGuildID() + " Time:" + joinTracker.get(key).getTime() + " Current Time:" + System.currentTimeMillis());;
-//                }
             }
         };
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(printHowManyInCall, 0, 10, TimeUnit.SECONDS);
+
+        Runnable saveAllUsers = new Runnable() {
+            public void run() {
+                autoSave();
+            }
+        };
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+        scheduler.scheduleAtFixedRate(printHowManyInCall, 0, 10, TimeUnit.SECONDS);
+
+
+        // Run every minute based on system time
+        Calendar calendar = Calendar.getInstance();
+        scheduler.scheduleAtFixedRate(new logging_stats(), millisToNextHour(calendar), 60*60*1000, TimeUnit.MILLISECONDS);
+
+        scheduler.scheduleAtFixedRate(saveAllUsers, 0, 10, TimeUnit.MINUTES);
 
     }
 
@@ -253,18 +185,6 @@ public class Main extends ListenerAdapter {
         // final long sec = TimeUnit.MILLISECONDS.toSeconds(durationInMillis - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
         // final long ms = TimeUnit.MILLISECONDS.toMillis(durationInMillis - - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
         return String.format("%02dh %02dm", hr, min);
-    }
-
-    public static String millisecondsToTimeStampDays(long durationInMillis) {
-
-        //Reference: https://stackoverflow.com/questions/6710094/how-to-format-an-elapsed-time-interval-in-hhmmss-sss-format-in-java
-
-        final long day = TimeUnit.MILLISECONDS.toDays(durationInMillis);
-        final long hr = TimeUnit.MILLISECONDS.toHours(durationInMillis - TimeUnit.DAYS.toMillis(day));
-        final long min = TimeUnit.MILLISECONDS.toMinutes(durationInMillis - TimeUnit.DAYS.toMillis(day) - TimeUnit.HOURS.toMillis(hr));
-        // final long sec = TimeUnit.MILLISECONDS.toSeconds(durationInMillis - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
-        // final long ms = TimeUnit.MILLISECONDS.toMillis(durationInMillis - - TimeUnit.HOURS.toMillis(day) - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
-        return String.format("%02dd %02dh %02dm", day, hr, min);
     }
 
     static class logging_stats implements Runnable {
@@ -350,7 +270,7 @@ public class Main extends ListenerAdapter {
             stmt.setString(4, guild.getName());
             stmt.setString(5, String.valueOf(eventType));
             stmt.setString(6, command);
-            stmt.setString(7, millisecondsToTimeStampDays(timeInVC));
+            stmt.setString(7, millisecondsToTimeStamp(timeInVC));
             stmt.executeUpdate();
             conn.close();
         }
@@ -367,5 +287,31 @@ public class Main extends ListenerAdapter {
         int secondsToNextHour = 60 - seconds;
         int millisToNextHour = 1000 - millis;
         return minutesToNextHour*60*1000 + secondsToNextHour*1000 + millisToNextHour;
+    }
+
+    private static void autoSave(){
+        try{
+            long startTime = System.nanoTime();
+
+            System.out.println("-\n\nAuto saving user stats...\n\n-");
+
+
+            // Save all the user's stats before fully exiting
+            for (Long key: joinTracker.keySet()) {
+                saveStatsShutdown(joinTracker.get(key).getGuildID(), key);
+            }
+
+            long endTime = System.nanoTime();
+            long elapsedTime = endTime - startTime;
+            double seconds = (double) elapsedTime / 1_000_000_000.0;
+            System.out.println("-\n\nAUTOSAVE COMPLETED \n\nSaving took: " + seconds + " seconds for " + joinTracker.size() + " users.");
+        }
+
+        catch (Exception e){
+            System.out.println("Error: ");
+            for(StackTraceElement i: e.getStackTrace()){
+                System.out.println(i.toString());
+            }
+        }
     }
 }

@@ -9,10 +9,9 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import static me.Kyrobi.Main.jda;
 import static me.Kyrobi.Main.log_actions;
@@ -23,7 +22,7 @@ public class Tracker extends ListenerAdapter {
 
     //Map stores when the user joins the call
     //userID, timeInMS
-    public static Map<Long, User> joinTracker = new HashMap<>();
+    public static Map<Long, User> joinTracker = new ConcurrentHashMap<>();
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e){
@@ -153,54 +152,60 @@ public class Tracker extends ListenerAdapter {
     }
 
     public static void saveStatsShutdown(long guildID, long memberID){
-        long userID = memberID;
-        long serverID = guildID;
 
-        //If for some reason the user joined the VC when the bot is down, we handle it
-        if(!joinTracker.containsKey(userID)){
-            return;
-        }
+        try{
+            long userID = memberID;
+            long serverID = guildID;
 
-        //Math stuff to find time elapsed
-        long leaveTime = System.currentTimeMillis();
-        long timeDifference = leaveTime - joinTracker.get(userID).getTime();
+            //If for some reason the user joined the VC when the bot is down, we handle it
+            if(!joinTracker.containsKey(userID)){
+                return;
+            }
 
+            //Math stuff to find time elapsed
+            long leaveTime = System.currentTimeMillis();
+            long timeDifference = leaveTime - joinTracker.get(userID).getTime();
 
         /*
         Saving the data
          */
 
-        Sqlite sqlite = new Sqlite();
+            Sqlite sqlite = new Sqlite();
 
 //        Guild guild = jda.getGuildById(guildID);
 //        Member member = guild.getMemberById(memberID);
 
-        // If user isn't found, break early
-        if(jda.getUserById(memberID) == null){
-            return;
-        }
+            // If user isn't found, break early
+            if(jda.getUserById(memberID) == null){
+                return;
+            }
 
-        // Don't save bots time in VC
-        if(jda.getUserById(memberID).isBot()){
-            return;
-        }
 
-        System.out.println("Saving: " + userID);
+            // Don't save bots time in VC
+            if(jda.getUserById(memberID).isBot()){
+                return;
+            }
 
-        //If the user exists in the database, we update their values
-        if(sqlite.exists(userID, serverID)){
-            long previousTime = sqlite.getTime(userID, serverID);
-            long newTime = previousTime + timeDifference;
-            sqlite.update(userID, newTime, serverID);
-        }
-        //If the user isn't in the database matching the guild, we add them to it
-        else{
-            // System.out.println(username + " does not exists in the database associated with this server: " + e.getGuild().getName() + "... adding!");
-            sqlite.insert(userID, timeDifference, serverID);
-        }
+            // System.out.println("Saving: " + userID);
 
-        //Remove the user from the cache
-        joinTracker.remove(userID);
+            //If the user exists in the database, we update their values
+            if(sqlite.exists(userID, serverID)){
+                long previousTime = sqlite.getTime(userID, serverID);
+                long newTime = previousTime + timeDifference;
+                sqlite.update(userID, newTime, serverID);
+            }
+            //If the user isn't in the database matching the guild, we add them to it
+            else{
+                // System.out.println(username + " does not exists in the database associated with this server: " + e.getGuild().getName() + "... adding!");
+                sqlite.insert(userID, timeDifference, serverID);
+            }
+
+
+            //Remove the user from the cache
+            // joinTracker.remove(userID);
+        } catch (Exception e){
+            System.out.println("Bruh, something went wrong");
+        }
     }
 
 }

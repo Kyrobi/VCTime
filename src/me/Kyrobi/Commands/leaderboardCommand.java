@@ -87,7 +87,7 @@ public class leaderboardCommand extends ListenerAdapter{
                 leaderboardNames.append(name);
             }
 
-            String serverTotal = "**Server total**: " + millisecondsToTimeStampDays(getServerTotalTime(e.getGuild().getIdLong()));
+            String serverTotal = "**Server total**: " + millisecondsToTimeStamp(getServerTotalTime(e.getGuild().getIdLong()));
             leaderboardNames.append(serverTotal);
             leaderboardNames.append("\n\n");
 
