@@ -17,4 +17,12 @@ public class User {
     public long getTime(){
         return time;
     }
+
+    public void setGuildID(long guildID){
+        this.guildID = guildID;
+    }
+
+    public void setTime(long time){
+        this.time = time;
+    }
 }

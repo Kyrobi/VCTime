@@ -154,7 +154,7 @@ public class Main extends ListenerAdapter {
         Calendar calendar = Calendar.getInstance();
         scheduler.scheduleAtFixedRate(new logging_stats(), millisToNextHour(calendar), 60*60*1000, TimeUnit.MILLISECONDS);
 
-        scheduler.scheduleAtFixedRate(saveAllUsers, 0, 10, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(saveAllUsers, 0, 5, TimeUnit.MINUTES);
 
     }
 
@@ -289,8 +289,10 @@ public class Main extends ListenerAdapter {
         return minutesToNextHour*60*1000 + secondsToNextHour*1000 + millisToNextHour;
     }
 
+
     private static void autoSave(){
         try{
+            // Test comment
             long startTime = System.nanoTime();
 
             System.out.println("-\n\nAuto saving user stats...\n\n-");
@@ -299,6 +301,12 @@ public class Main extends ListenerAdapter {
             // Save all the user's stats before fully exiting
             for (Long key: joinTracker.keySet()) {
                 saveStatsShutdown(joinTracker.get(key).getGuildID(), key);
+
+                // Update the user's time or else it will start to compound
+                User user = joinTracker.get(key);
+                user.setTime(System.currentTimeMillis());
+
+                joinTracker.put(key, user);
             }
 
             long endTime = System.nanoTime();
