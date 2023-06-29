@@ -29,6 +29,11 @@ public class Tracker extends ListenerAdapter {
         String guildName = e.getGuild().getName();
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has joined the VC");
 
+        if(e.getMember().getUser().isBot()){
+            System.out.println("User is a bot. Ignoring");
+            return;
+        }
+
 
         if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
             return;
@@ -49,6 +54,11 @@ public class Tracker extends ListenerAdapter {
         String guildName = e.getGuild().getName();
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has left the VC");
 
+        if(e.getMember().getUser().isBot()){
+            System.out.println("User is a bot. Ignoring");
+            return;
+        }
+
         if(e.getChannelLeft().getName().equalsIgnoreCase("AFK")){
             return;
         }
@@ -68,6 +78,11 @@ public class Tracker extends ListenerAdapter {
         System.out.println(e.getMember().getEffectiveName() + " from " + e.getGuild().getName() + " has changed from channel " + e.getChannelLeft().getName() + " to " + e.getChannelJoined().getName());
 
         String username = e.getMember().getEffectiveName();
+
+        if(e.getMember().getUser().isBot()){
+            System.out.println("User is a bot. Ignoring");
+            return;
+        }
 
         //If moved into an AFK channel
 
@@ -107,9 +122,16 @@ public class Tracker extends ListenerAdapter {
 
 
     public static void saveStats(Member e){
+
+        // Don't save bots time in VC
+        if(e.getUser().isBot()){
+            return;
+        }
+
         String username = e.getEffectiveName();
         long userID = Long.parseLong(e.getId());
         long serverID = Long.parseLong(e.getGuild().getId());
+
 
         //If for some reason the user joined the VC when the bot is down, we handle it
         if(!joinTracker.containsKey(userID)){
@@ -126,11 +148,6 @@ public class Tracker extends ListenerAdapter {
          */
 
         Sqlite sqlite = new Sqlite();
-
-        // Don't save bots time in VC
-        if(e.getUser().isBot()){
-            return;
-        }
 
         //If the user exists in the database, we update their values
         if(sqlite.exists(userID, serverID)){
@@ -152,6 +169,11 @@ public class Tracker extends ListenerAdapter {
     }
 
     public static void saveStatsShutdown(long guildID, long memberID){
+
+        // Don't save bots time in VC
+        if(jda.getUserById(memberID).isBot()){
+            return;
+        }
 
         try{
             long userID = memberID;
@@ -177,12 +199,6 @@ public class Tracker extends ListenerAdapter {
 
             // If user isn't found, break early
             if(jda.getUserById(memberID) == null){
-                return;
-            }
-
-
-            // Don't save bots time in VC
-            if(jda.getUserById(memberID).isBot()){
                 return;
             }
 

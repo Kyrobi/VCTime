@@ -156,6 +156,10 @@ public class Main extends ListenerAdapter {
 
         scheduler.scheduleAtFixedRate(saveAllUsers, 0, 5, TimeUnit.MINUTES);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            autoSave();
+        }));
+
     }
 
     public static void logInfo(LogType logType, String message){
