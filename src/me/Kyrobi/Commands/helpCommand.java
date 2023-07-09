@@ -25,7 +25,7 @@ public class helpCommand extends ListenerAdapter {
             e.reply("" +
                     "/stats - View your call time\n" +
                     "/leaderboard - View the vc leaderboard for your server\n" +
-                    "\nUsers in a voice channel named `AFK` won't have their time counted."
+                    "\nUsers in an AFK voice channel won't have their time counted."
             ).queue();
 
             String logMessage = "" +

@@ -229,58 +229,63 @@ public class Main extends ListenerAdapter {
     }
 
     public static void log_actions(Member member, Guild guild, LogType eventType, String command) {
-        File dbfile = new File("");
-        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
 
-        String sqlcommand = "INSERT INTO actions_log" +
-                "(time, user, name, server, event_type, command) " +
-                "VALUES(?,?,?,?,?,?)";
+        return;
 
-
-        try(Connection conn = DriverManager.getConnection(url)){
-            Class.forName("org.sqlite.JDBC");
-            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
-
-            stmt.setString(1, getDate());
-            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
-            stmt.setString(3, member.getEffectiveName());
-            stmt.setString(4, guild.getName());
-            stmt.setString(5, String.valueOf(eventType));
-            stmt.setString(6, command);
-            stmt.executeUpdate();
-            conn.close();
-        }
-        catch(SQLException | ClassNotFoundException error){
-            System.out.println(error.getMessage());
-        }
+//        File dbfile = new File("");
+//        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+//
+//        String sqlcommand = "INSERT INTO actions_log" +
+//                "(time, user, name, server, event_type, command) " +
+//                "VALUES(?,?,?,?,?,?)";
+//
+//
+//        try(Connection conn = DriverManager.getConnection(url)){
+//            Class.forName("org.sqlite.JDBC");
+//            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
+//
+//            stmt.setString(1, getDate());
+//            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
+//            stmt.setString(3, member.getEffectiveName());
+//            stmt.setString(4, guild.getName());
+//            stmt.setString(5, String.valueOf(eventType));
+//            stmt.setString(6, command);
+//            stmt.executeUpdate();
+//            conn.close();
+//        }
+//        catch(SQLException | ClassNotFoundException error){
+//            System.out.println(error.getMessage());
+//        }
     }
 
     public static void log_actions(Member member, Guild guild, LogType eventType, String command, long timeInVC) {
-        File dbfile = new File("");
-        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
 
-        String sqlcommand = "INSERT INTO actions_log" +
-                "(time, user, name, server, event_type, command, time_in_vc) " +
-                "VALUES(?,?,?,?,?,?,?)";
-
-
-        try(Connection conn = DriverManager.getConnection(url)){
-            Class.forName("org.sqlite.JDBC");
-            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
-
-            stmt.setString(1, getDate());
-            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
-            stmt.setString(3, member.getEffectiveName());
-            stmt.setString(4, guild.getName());
-            stmt.setString(5, String.valueOf(eventType));
-            stmt.setString(6, command);
-            stmt.setString(7, millisecondsToTimeStamp(timeInVC));
-            stmt.executeUpdate();
-            conn.close();
-        }
-        catch(SQLException | ClassNotFoundException error){
-            System.out.println(error.getMessage());
-        }
+        return;
+//        File dbfile = new File("");
+//        String url = "jdbc:sqlite:" + dbfile.getAbsolutePath() + File.separator + Main.databaseFileName;
+//
+//        String sqlcommand = "INSERT INTO actions_log" +
+//                "(time, user, name, server, event_type, command, time_in_vc) " +
+//                "VALUES(?,?,?,?,?,?,?)";
+//
+//
+//        try(Connection conn = DriverManager.getConnection(url)){
+//            Class.forName("org.sqlite.JDBC");
+//            PreparedStatement stmt = conn.prepareStatement(sqlcommand);
+//
+//            stmt.setString(1, getDate());
+//            stmt.setString(2, member.getUser().getName() + "#" + member.getUser().getDiscriminator());
+//            stmt.setString(3, member.getEffectiveName());
+//            stmt.setString(4, guild.getName());
+//            stmt.setString(5, String.valueOf(eventType));
+//            stmt.setString(6, command);
+//            stmt.setString(7, millisecondsToTimeStamp(timeInVC));
+//            stmt.executeUpdate();
+//            conn.close();
+//        }
+//        catch(SQLException | ClassNotFoundException error){
+//            System.out.println(error.getMessage());
+//        }
     }
 
     private static long millisToNextHour(Calendar calendar) {
@@ -320,10 +325,8 @@ public class Main extends ListenerAdapter {
         }
 
         catch (Exception e){
-            System.out.println("Error: ");
-            for(StackTraceElement i: e.getStackTrace()){
-                System.out.println(i.toString());
-            }
+            System.out.println("Error in autoSave()");
+            e.printStackTrace();
         }
     }
 }

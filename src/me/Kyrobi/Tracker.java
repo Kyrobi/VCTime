@@ -35,14 +35,14 @@ public class Tracker extends ListenerAdapter {
         }
 
 
-        if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
+        if(isAFKChannel(e.getGuild(), e.getChannelJoined())){
             return;
         }
         startStats(e.getMember());
 
         String logMessage = "" +
                 "Guild: " + e.getGuild().getName() + "  **|**  " + "User: " + e.getMember().getEffectiveName() + " `" + e.getMember().getUser().getName() + "#" + e.getMember().getUser().getDiscriminator() + "` " +"\n" +
-                "**Joined: **" + e.getChannelJoined() + "\n-";
+                "**Joined: **" + e.getChannelJoined().getName() + "\n-";
         Main.logInfo(Main.LogType.JOIN_EVENT,logMessage);
         log_actions(e.getMember(), e.getGuild(), Main.LogType.JOIN_EVENT, "Join Channel");
 
@@ -59,7 +59,7 @@ public class Tracker extends ListenerAdapter {
             return;
         }
 
-        if(e.getChannelLeft().getName().equalsIgnoreCase("AFK")){
+        if(isAFKChannel(e.getGuild(), e.getChannelLeft())){
             return;
         }
         saveStats(e.getMember());
@@ -86,12 +86,12 @@ public class Tracker extends ListenerAdapter {
 
         //If moved into an AFK channel
 
-        if(e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
+        if(isAFKChannel(e.getGuild(), e.getChannelJoined())){
             System.out.println(username +  " got moved into an AFK channel. Saving stats ");
             saveStats(e.getMember());
         }
 
-        if(!e.getChannelJoined().getName().equalsIgnoreCase("AFK")){
+        if(!isAFKChannel(e.getGuild(), e.getChannelJoined())){
             startStats(e.getMember());
         }
 
@@ -102,6 +102,17 @@ public class Tracker extends ListenerAdapter {
         log_actions(e.getMember(), e.getGuild(), Main.LogType.MOVE_EVENT, "Move Channel");
 
         ++timesMove;
+    }
+
+    private boolean isAFKChannel(Guild guild, VoiceChannel channel){
+        if(guild.getAfkChannel() != null) {
+            String afkChannelName = guild.getAfkChannel().getName();
+
+            if(afkChannelName.equals(channel.getName())){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void startStats(Member e){
@@ -171,7 +182,13 @@ public class Tracker extends ListenerAdapter {
     public static void saveStatsShutdown(long guildID, long memberID){
 
         // Don't save bots time in VC
-        if(jda.getUserById(memberID).isBot()){
+        try{
+            if(Objects.requireNonNull(jda.getUserById(memberID)).isBot()){
+                return;
+            }
+        }
+
+        catch(NullPointerException npe){
             return;
         }
 
